@@ -24,6 +24,7 @@ export interface Review {
   comments: number | Comment[];
   genre: string;
   isbn?: string;
+  commentsArray?: Comment[];
 }
 
 export interface CreateReviewData {

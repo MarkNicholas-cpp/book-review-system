@@ -102,17 +102,29 @@ export const login = async (
       return { success: false, error: 'No account found with this email.' };
     }
 
-    // For mock auth: check if password matches (stored in db.json)
-    // If password field doesn't exist, we'll create a simple validation
+    // For static demo: check if password matches
+    // Demo users have plain text password "demo123"
+    // New users have hashed passwords
     const userWithPassword = user as any;
     if (userWithPassword.password) {
-      const hashedPassword = hashPassword(password);
-      if (userWithPassword.password !== hashedPassword) {
-        return { success: false, error: 'Incorrect password.' };
+      // Check if it's a demo user (plain text password)
+      if (userWithPassword.password === 'demo123') {
+        // Demo user - check plain text
+        if (password !== 'demo123') {
+          return { success: false, error: 'Incorrect password. Demo password is "demo123".' };
+        }
+      } else {
+        // Regular user - check hashed password
+        const hashedPassword = hashPassword(password);
+        if (userWithPassword.password !== hashedPassword) {
+          return { success: false, error: 'Incorrect password.' };
+        }
       }
     } else {
-      // If no password stored, accept any password for demo
-      // In production, this would be handled by backend
+      // If no password stored, accept "demo123" for demo purposes
+      if (password !== 'demo123') {
+        return { success: false, error: 'Incorrect password. Try "demo123" for demo accounts.' };
+      }
     }
 
     // Create session

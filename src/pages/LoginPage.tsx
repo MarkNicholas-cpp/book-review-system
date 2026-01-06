@@ -161,23 +161,55 @@ const LoginPage = () => {
           </Button>
         </form>
 
-        {/* Divider */}
-        <div className="auth-divider">
-          <span className="divider-line"></span>
-          <span className="divider-text">or continue with</span>
-          <span className="divider-line"></span>
-        </div>
-
-        {/* Social Login */}
-        <div className="social-login">
-          <button type="button" className="social-btn" disabled>
-            <span className="social-icon">G</span>
-            <span>Continue with Google</span>
-          </button>
-          <button type="button" className="social-btn" disabled>
-            <span className="social-icon">GH</span>
-            <span>Continue with GitHub</span>
-          </button>
+        {/* Demo Credentials */}
+        <div className="demo-credentials">
+          <div className="demo-header">
+            <span className="divider-line"></span>
+            <span className="divider-text">Demo Accounts</span>
+            <span className="divider-line"></span>
+          </div>
+          <div className="demo-accounts">
+            <button
+              type="button"
+              className="demo-account-btn"
+              onClick={() => {
+                setEmail('sarah@demo.com');
+                setPassword('demo123');
+                setError(null);
+              }}
+              disabled={loading}
+            >
+              <span className="demo-account-name">Sarah Johnson</span>
+              <span className="demo-account-email">sarah@demo.com</span>
+            </button>
+            <button
+              type="button"
+              className="demo-account-btn"
+              onClick={() => {
+                setEmail('emma@demo.com');
+                setPassword('demo123');
+                setError(null);
+              }}
+              disabled={loading}
+            >
+              <span className="demo-account-name">Emma Wilson</span>
+              <span className="demo-account-email">emma@demo.com</span>
+            </button>
+            <button
+              type="button"
+              className="demo-account-btn"
+              onClick={() => {
+                setEmail('michael@demo.com');
+                setPassword('demo123');
+                setError(null);
+              }}
+              disabled={loading}
+            >
+              <span className="demo-account-name">Michael Chen</span>
+              <span className="demo-account-email">michael@demo.com</span>
+            </button>
+          </div>
+          <p className="demo-note">Click any account to auto-fill credentials. Password: <strong>demo123</strong></p>
         </div>
 
         {/* Secondary Action */}

@@ -23,6 +23,7 @@ export interface Blog {
   claps: number;
   comments: number | Comment[];
   shares: number;
+  commentsArray?: Comment[];
 }
 
 export interface CreateBlogData {

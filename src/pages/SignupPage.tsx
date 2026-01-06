@@ -208,14 +208,14 @@ const SignupPage = () => {
         </div>
       </div>
 
-      {/* Footer Microcopy */}
-      <p className="auth-footer">
-        By continuing, you agree to our <Link to="/terms">Terms</Link> and <Link to="/privacy">Privacy Policy</Link>.
-        <br />
-        <small style={{ color: 'var(--color-text-muted)', fontSize: '12px', marginTop: '8px', display: 'block' }}>
-          This is a demo app — passwords are stored for mock auth only.
-        </small>
-      </p>
+        {/* Footer Microcopy */}
+        <p className="auth-footer">
+          By continuing, you agree to our <Link to="/terms">Terms</Link> and <Link to="/privacy">Privacy Policy</Link>.
+          <br />
+          <small style={{ color: 'var(--color-text-muted)', fontSize: '12px', marginTop: '8px', display: 'block' }}>
+            This is a demo app. Try demo accounts on the <Link to="/login">login page</Link>.
+          </small>
+        </p>
     </div>
   );
 };
