@@ -11,7 +11,6 @@ import { getCurrentUserId, isAuthenticated } from '../auth/authClient';
 import type { User } from '../services/usersService';
 import type { Review } from '../services/reviewsService';
 import type { Blog } from '../services/blogsService';
-import type { Favorite } from '../services/favoritesService';
 import './ProfilePage.css';
 
 // Will use getCurrentUserId() from auth
@@ -104,7 +103,7 @@ const ProfilePage = () => {
             favorites: favoriteItems.length,
           });
           // Refresh user data to get updated stats
-          const updatedUser = await getUserById(CURRENT_USER_ID);
+          const updatedUser = await getUserById(userId);
           setUser(updatedUser);
         } catch (err) {
           console.error('Error updating user stats:', err);

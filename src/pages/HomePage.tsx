@@ -17,7 +17,7 @@ const HomePage = () => {
   const [trendingBlogs, setTrendingBlogs] = useState<Blog[]>([]);
   const [latestReviews, setLatestReviews] = useState<Review[]>([]);
   const [featuredBooks, setFeaturedBooks] = useState<Review[]>([]);
-  const [loading, setLoading] = useState(true);
+  const [, setLoading] = useState(true);
 
   useEffect(() => {
     const fetchData = async () => {
@@ -42,7 +42,7 @@ const HomePage = () => {
 
         // Get 3 specific featured books (IDs 1, 2, 3)
         const featured = reviewsData.filter(review => 
-          review.id === '1' || review.id === '2' || review.id === '3'
+          review.id === 1 || review.id === 2 || review.id === 3
         );
         setFeaturedBooks(featured);
       } catch (error) {

@@ -38,6 +38,20 @@
         "reviews": 22,
         "favorites": 7
       }
+    },
+    {
+      "id": "330e",
+      "name": "Mark Nicholas Bandela",
+      "email": "Marknicholas2002112@gmail.com",
+      "password": "NmpSd3hwNlZRSFFKTUZZ",
+      "avatar": "",
+      "bio": "",
+      "joinedDate": "January 2026",
+      "stats": {
+        "blogs": 0,
+        "reviews": 0,
+        "favorites": 0
+      }
     }
   ],
   "reviews": [
@@ -53,10 +67,18 @@
       "userId": 1,
       "reviewerName": "Sarah Johnson",
       "date": "2025-01-10",
-      "likes": 24,
-      "comments": 8,
+      "likes": 25,
+      "comments": 1,
       "genre": "Fiction",
-      "isbn": "978-0525559474"
+      "isbn": "978-0525559474",
+      "commentsArray": [
+        {
+          "id": 1767689324300,
+          "author": "Sarah Johnson",
+          "text": "This Book is Letally Very Good Loved It.!",
+          "date": "2026-01-06"
+        }
+      ]
     },
     {
       "id": "2",
@@ -290,7 +312,7 @@
       ],
       "date": "2025-01-05",
       "readTime": "10 min read",
-      "claps": 312,
+      "claps": 313,
       "comments": 24,
       "shares": 41
     },

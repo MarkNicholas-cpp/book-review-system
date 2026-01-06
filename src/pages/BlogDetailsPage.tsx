@@ -6,6 +6,9 @@ import Card from '../components/Card';
 import TextArea from '../components/TextArea';
 import { getBlogById, clapBlog, getBlogsByCategory, updateBlog } from '../services/blogsService';
 import { getUserById } from '../services/usersService';
+import { toggleFavorite, isFavorited as checkIsFavorited } from '../services/favoritesService';
+import { toggleFollow, isFollowing as checkIsFollowing } from '../services/followsService';
+import { getCurrentUserId, isAuthenticated } from '../auth/authClient';
 import type { Blog, Comment } from '../services/blogsService';
 import type { User } from '../services/usersService';
 import './BlogDetailsPage.css';
@@ -21,10 +24,12 @@ const BlogDetailsPage = () => {
   const [isClapped, setIsClapped] = useState(false);
   const [clapCount, setClapCount] = useState(0);
   const [isFollowing, setIsFollowing] = useState(false);
+  const [isFavorited, setIsFavorited] = useState(false);
   const [commentText, setCommentText] = useState('');
   const [comments, setComments] = useState<Comment[]>([]);
   const [submittingComment, setSubmittingComment] = useState(false);
   const [userName, setUserName] = useState('You');
+  const [currentUserId, setCurrentUserId] = useState<number | null>(null);
 
   // Fetch blog data
   useEffect(() => {
@@ -73,6 +78,26 @@ const BlogDetailsPage = () => {
         } catch (err) {
           console.error('Error fetching related blogs:', err);
         }
+
+        // Check if user is authenticated and if blog is favorited
+        if (isAuthenticated()) {
+          const userId = getCurrentUserId();
+          if (userId) {
+            setCurrentUserId(userId);
+            try {
+              const favorited = await checkIsFavorited(userId, 'blog', blogData.id);
+              setIsFavorited(favorited);
+              
+              // Check if user is following the author
+              if (blogData.authorId) {
+                const following = await checkIsFollowing(userId, blogData.authorId);
+                setIsFollowing(following);
+              }
+            } catch (err) {
+              console.error('Error checking favorite/follow status:', err);
+            }
+          }
+        }
       } catch (err) {
         console.error('Error fetching blog:', err);
         setError('Blog not found or unable to load.');
@@ -106,6 +131,69 @@ const BlogDetailsPage = () => {
       // Revert on error
       setIsClapped(!newClapped);
       setClapCount(clapCount);
+    }
+  };
+
+  const handleFavorite = async () => {
+    if (!blog || !currentUserId) {
+      // Redirect to login if not authenticated
+      navigate('/login');
+      return;
+    }
+
+    try {
+      const result = await toggleFavorite(currentUserId, 'blog', blog.id);
+      setIsFavorited(result.favorited);
+    } catch (err) {
+      console.error('Error toggling favorite:', err);
+      alert('Failed to update favorite. Please try again.');
+    }
+  };
+
+  const handleFollow = async () => {
+    if (!blog || !currentUserId) {
+      navigate('/login');
+      return;
+    }
+
+    if (blog.authorId === currentUserId) {
+      return; // Can't follow yourself
+    }
+
+    try {
+      const result = await toggleFollow(currentUserId, blog.authorId);
+      setIsFollowing(result.following);
+    } catch (err) {
+      console.error('Error toggling follow:', err);
+      alert('Failed to update follow status. Please try again.');
+    }
+  };
+
+  const handleShare = async () => {
+    if (!blog) return;
+    
+    const url = window.location.href;
+    
+    if (navigator.share) {
+      try {
+        await navigator.share({
+          title: blog.title,
+          text: blog.subtitle,
+          url: url,
+        });
+      } catch (err) {
+        // User cancelled or error occurred
+        console.log('Share cancelled or failed');
+      }
+    } else {
+      // Fallback: copy to clipboard
+      try {
+        await navigator.clipboard.writeText(url);
+        alert('Link copied to clipboard!');
+      } catch (err) {
+        // Fallback: show URL
+        prompt('Copy this link:', url);
+      }
     }
   };
 
@@ -221,9 +309,22 @@ const BlogDetailsPage = () => {
             </button>
             <button className="floating-action-btn">
               <span className="action-icon-large">💬</span>
-              <span className="action-count-large">{blog.comments}</span>
+              <span className="action-count-large">
+                {typeof blog.comments === 'number' ? blog.comments : comments.length}
+              </span>
             </button>
-            <button className="floating-action-btn">
+            <button 
+              className={`floating-action-btn ${isFavorited ? 'favorited' : ''}`}
+              onClick={handleFavorite}
+              title={isFavorited ? 'Remove from favorites' : 'Add to favorites'}
+            >
+              <span className="action-icon-large">{isFavorited ? '⭐' : '☆'}</span>
+            </button>
+            <button 
+              className="floating-action-btn"
+              onClick={handleShare}
+              title="Share this blog"
+            >
               <span className="action-icon-large">↗</span>
             </button>
           </aside>
@@ -261,7 +362,7 @@ const BlogDetailsPage = () => {
                 variant="outline" 
                 size="small"
                 className="follow-btn"
-                onClick={() => setIsFollowing(!isFollowing)}
+                onClick={handleFollow}
               >
                 {isFollowing ? 'Following' : 'Follow'}
               </Button>
@@ -354,7 +455,7 @@ const BlogDetailsPage = () => {
                     <Button 
                       variant="secondary" 
                       size="small"
-                      onClick={() => setIsFollowing(!isFollowing)}
+                      onClick={handleFollow}
                     >
                       {isFollowing ? 'Following' : 'Follow'}
                     </Button>

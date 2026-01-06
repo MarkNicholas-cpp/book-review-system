@@ -2,11 +2,12 @@ import { useState, useEffect } from 'react';
 import { useParams, Link, useNavigate } from 'react-router-dom';
 import Container from '../components/Container';
 import Button from '../components/Button';
-import Card from '../components/Card';
 import TextArea from '../components/TextArea';
 import { getReviewById, updateReview, getReviewsByGenre } from '../services/reviewsService';
 import type { Review, Comment } from '../services/reviewsService';
 import { getUserById } from '../services/usersService';
+import { toggleFavorite, isFavorited as checkIsFavorited } from '../services/favoritesService';
+import { getCurrentUserId, isAuthenticated } from '../auth/authClient';
 import './ReviewDetailsPage.css';
 
 const ReviewDetailsPage = () => {
@@ -24,6 +25,7 @@ const ReviewDetailsPage = () => {
   const [submittingComment, setSubmittingComment] = useState(false);
   const [userName, setUserName] = useState('You');
   const [reviewerAvatar, setReviewerAvatar] = useState<string>('');
+  const [currentUserId, setCurrentUserId] = useState<number | null>(null);
 
   // Fetch review data
   useEffect(() => {
@@ -68,6 +70,20 @@ const ReviewDetailsPage = () => {
         } catch (err) {
           setUserName(reviewData.reviewerName);
         }
+
+        // Check if user is authenticated and if review is favorited
+        if (isAuthenticated()) {
+          const userId = getCurrentUserId();
+          if (userId) {
+            setCurrentUserId(userId);
+            try {
+              const favorited = await checkIsFavorited(userId, 'review', reviewData.id);
+              setIsFavorited(favorited);
+            } catch (err) {
+              console.error('Error checking favorite status:', err);
+            }
+          }
+        }
       } catch (err) {
         console.error('Error fetching review:', err);
         setError('Review not found or unable to load.');
@@ -101,8 +117,52 @@ const ReviewDetailsPage = () => {
     }
   };
 
-  const handleFavorite = () => {
-    setIsFavorited(!isFavorited);
+  const handleFavorite = async () => {
+    if (!review || !currentUserId) {
+      // Redirect to login if not authenticated
+      navigate('/login');
+      return;
+    }
+
+    try {
+      const result = await toggleFavorite(currentUserId, 'review', review.id);
+      setIsFavorited(result.favorited);
+      
+      // Update user stats if needed (optional)
+      // This could be handled in the favoritesService or backend
+    } catch (err) {
+      console.error('Error toggling favorite:', err);
+      alert('Failed to update favorite. Please try again.');
+    }
+  };
+
+  const handleShare = async () => {
+    if (!review) return;
+    
+    const url = window.location.href;
+    const text = `Check out this review: ${review.reviewTitle} - ${review.bookTitle} by ${review.bookAuthor}`;
+    
+    if (navigator.share) {
+      try {
+        await navigator.share({
+          title: `${review.reviewTitle} - ${review.bookTitle}`,
+          text: text,
+          url: url,
+        });
+      } catch (err) {
+        // User cancelled or error occurred
+        console.log('Share cancelled or failed');
+      }
+    } else {
+      // Fallback: copy to clipboard
+      try {
+        await navigator.clipboard.writeText(url);
+        alert('Link copied to clipboard!');
+      } catch (err) {
+        // Fallback: show URL
+        prompt('Copy this link:', url);
+      }
+    }
   };
 
   const handleAddComment = async () => {
@@ -325,6 +385,14 @@ const ReviewDetailsPage = () => {
             >
               <span>⭐</span>
               <span>Favorite</span>
+            </button>
+            <button
+              className="action-btn"
+              onClick={handleShare}
+              title="Share this review"
+            >
+              <span>↗</span>
+              <span>Share</span>
             </button>
           </div>
         </div>
